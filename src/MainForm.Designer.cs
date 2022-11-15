@@ -29,7 +29,6 @@ namespace SharpTables
         /// </summary>
         private void InitializeComponent()
         {
-            this.mainGridView = new System.Windows.Forms.DataGridView();
             this.mainMenuStrip = new System.Windows.Forms.MenuStrip();
             this.fileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newWorkbookMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -39,19 +38,14 @@ namespace SharpTables
             this.editMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.undoMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.redoMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            ((System.ComponentModel.ISupportInitialize)(this.mainGridView)).BeginInit();
+            this.addColumnToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeColumnToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.addRowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeRowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.mainGridView = new System.Windows.Forms.DataGridView();
             this.mainMenuStrip.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.mainGridView)).BeginInit();
             this.SuspendLayout();
-            // 
-            // mainGridView
-            // 
-            this.mainGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.mainGridView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.mainGridView.Location = new System.Drawing.Point(0, 24);
-            this.mainGridView.Name = "mainGridView";
-            this.mainGridView.RowTemplate.Height = 25;
-            this.mainGridView.Size = new System.Drawing.Size(916, 400);
-            this.mainGridView.TabIndex = 1;
             // 
             // mainMenuStrip
             // 
@@ -103,7 +97,11 @@ namespace SharpTables
             // 
             this.editMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.undoMenuItem,
-            this.redoMenuItem});
+            this.redoMenuItem,
+            this.addColumnToolStripMenuItem,
+            this.removeColumnToolStripMenuItem,
+            this.addRowToolStripMenuItem,
+            this.removeRowToolStripMenuItem});
             this.editMenuItem.Name = "editMenuItem";
             this.editMenuItem.Size = new System.Drawing.Size(39, 20);
             this.editMenuItem.Text = "Edit";
@@ -111,14 +109,54 @@ namespace SharpTables
             // undoMenuItem
             // 
             this.undoMenuItem.Name = "undoMenuItem";
-            this.undoMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.undoMenuItem.Size = new System.Drawing.Size(161, 22);
             this.undoMenuItem.Text = "Undo";
             // 
             // redoMenuItem
             // 
             this.redoMenuItem.Name = "redoMenuItem";
-            this.redoMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.redoMenuItem.Size = new System.Drawing.Size(161, 22);
             this.redoMenuItem.Text = "Redo";
+            // 
+            // addColumnToolStripMenuItem
+            // 
+            this.addColumnToolStripMenuItem.Name = "addColumnToolStripMenuItem";
+            this.addColumnToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
+            this.addColumnToolStripMenuItem.Text = "Add column";
+            this.addColumnToolStripMenuItem.Click += new System.EventHandler(this.addColumnToolStripMenuItem_Click);
+            // 
+            // removeColumnToolStripMenuItem
+            // 
+            this.removeColumnToolStripMenuItem.Name = "removeColumnToolStripMenuItem";
+            this.removeColumnToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
+            this.removeColumnToolStripMenuItem.Text = "Remove column";
+            // 
+            // addRowToolStripMenuItem
+            // 
+            this.addRowToolStripMenuItem.Name = "addRowToolStripMenuItem";
+            this.addRowToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
+            this.addRowToolStripMenuItem.Text = "Add row";
+            this.addRowToolStripMenuItem.Click += new System.EventHandler(this.addRowToolStripMenuItem_Click);
+            // 
+            // removeRowToolStripMenuItem
+            // 
+            this.removeRowToolStripMenuItem.Name = "removeRowToolStripMenuItem";
+            this.removeRowToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
+            this.removeRowToolStripMenuItem.Text = "Remove row";
+            // 
+            // mainGridView
+            // 
+            this.mainGridView.AllowUserToAddRows = false;
+            this.mainGridView.AllowUserToDeleteRows = false;
+            this.mainGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.mainGridView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.mainGridView.Location = new System.Drawing.Point(0, 24);
+            this.mainGridView.MultiSelect = false;
+            this.mainGridView.Name = "mainGridView";
+            this.mainGridView.RowTemplate.Height = 25;
+            this.mainGridView.Size = new System.Drawing.Size(916, 400);
+            this.mainGridView.TabIndex = 1;
+            this.mainGridView.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.mainGridView_CellEndEdit);
             // 
             // MainForm
             // 
@@ -130,16 +168,15 @@ namespace SharpTables
             this.MainMenuStrip = this.mainMenuStrip;
             this.Name = "MainForm";
             this.Text = "Form1";
-            ((System.ComponentModel.ISupportInitialize)(this.mainGridView)).EndInit();
             this.mainMenuStrip.ResumeLayout(false);
             this.mainMenuStrip.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.mainGridView)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-        private System.Windows.Forms.DataGridView mainGridView;
         private System.Windows.Forms.MenuStrip mainMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem fileMenuItem;
         private System.Windows.Forms.ToolStripMenuItem newWorkbookMenuItem;
@@ -149,6 +186,11 @@ namespace SharpTables
         private System.Windows.Forms.ToolStripMenuItem editMenuItem;
         private System.Windows.Forms.ToolStripMenuItem undoMenuItem;
         private System.Windows.Forms.ToolStripMenuItem redoMenuItem;
+        private System.Windows.Forms.DataGridView mainGridView;
+        private System.Windows.Forms.ToolStripMenuItem addColumnToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem removeColumnToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem addRowToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem removeRowToolStripMenuItem;
     }
 }
 
