@@ -8,7 +8,7 @@ namespace SharpTables
 {
     class CellNumberValue: ICellValue
     {
-        CellNumberValue(double value)
+        public CellNumberValue(double value)
         {
             this.Value = value;
         }

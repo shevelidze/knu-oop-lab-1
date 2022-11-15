@@ -156,6 +156,7 @@ namespace SharpTables
             this.mainGridView.RowTemplate.Height = 25;
             this.mainGridView.Size = new System.Drawing.Size(916, 400);
             this.mainGridView.TabIndex = 1;
+            this.mainGridView.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.mainGridView_CellBeginEdit);
             this.mainGridView.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.mainGridView_CellEndEdit);
             // 
             // MainForm

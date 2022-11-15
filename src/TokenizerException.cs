@@ -6,13 +6,10 @@ using System.Threading.Tasks;
 
 namespace SharpTables
 {
-    class Cell
+    class TokenizerException : Exception
     {
-        public Cell(string expression)
+        TokenizerException(string message): base(message)
         {
-            this.Expression = expression;
         }
-
-        public string Expression;
     }
 }

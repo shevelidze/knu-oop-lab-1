@@ -10,14 +10,16 @@ using System.Windows.Forms;
 
 namespace SharpTables
 {
-    public delegate void TableChnageHandler(int rowIndex, int colIndex, string text);
+    public delegate void CellChnageHandler(int rowIndex, int colIndex, string text, MainForm form);
+    public delegate void CellFocusHandler(int rowIndex, int colIndex, MainForm form);
     public partial class MainForm : Form
     {
-        public MainForm(TableChnageHandler tableChnageHandler)
+        public MainForm(CellChnageHandler cellChnageHandler, CellFocusHandler cellFocusHandler)
         {
             InitializeComponent();
 
-            this.tableChnageHandler = tableChnageHandler;
+            _cellChnageHandler = cellChnageHandler;
+            _cellFocusHandler = cellFocusHandler;
 
             const int initialRowsNumber = 10;
             const int initialColumnsNumber = 5;
@@ -38,7 +40,7 @@ namespace SharpTables
         public void AddColumn()
         {
             var index = this.mainGridView.Columns.Count;
-            this.mainGridView.Columns.Add(CellsStorage.ColumnIndexToString(index), CellsStorage.ColumnIndexToString(index));
+            this.mainGridView.Columns.Add(Table.ColumnIndexToString(index), Table.ColumnIndexToString(index));
         }
 
         public void AddRow()
@@ -63,12 +65,13 @@ namespace SharpTables
             }
         }
 
-        public void SetCellText(string cellId, string text)
+        public void SetCellText(int rowIndex, int columnIndex, string text)
         {
-            var indexes = CellsStorage.ParseCellId(cellId);
-
-            this.mainGridView.Rows[indexes.Item1].Cells[indexes.Item2].Value = text;
+            this.mainGridView.Rows[rowIndex].Cells[columnIndex].Value = text;
         }
+
+        private CellChnageHandler _cellChnageHandler;
+        private CellFocusHandler _cellFocusHandler;
 
         private void addColumnToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -84,13 +87,17 @@ namespace SharpTables
         {
             var cellValue = this.mainGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
 
-            this.tableChnageHandler(
+            _cellChnageHandler(
                 e.RowIndex,
                 e.ColumnIndex,
-                cellValue == null ? "" : cellValue.ToString()
+                cellValue == null ? "" : cellValue.ToString(),
+                this
             );
         }
 
-        private TableChnageHandler tableChnageHandler;
+        private void mainGridView_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
+        {
+            _cellFocusHandler(e.RowIndex, e.ColumnIndex, this);
+        }
     }
 }
