@@ -20,18 +20,74 @@ namespace SharpTables
 
         public ICellValue Execute()
         {
+            var tokens = this.tokenize();
+
             return new CellNumberValue(777);
         }
 
         private List<Token> tokenize()
         {
-            return new List<Token>();
+            var tokens = new List<Token>();
+            var currentIndex = 0;
+
+            while (currentIndex < _expression.Length)
+            {
+                if (Char.IsWhiteSpace(_expression[currentIndex]))
+                {
+                    currentIndex++;
+                    continue;
+                }
+
+                if (Char.IsDigit(_expression[currentIndex]))
+                {
+                    tokens.Add(_readNumber(currentIndex));
+                }
+                else if (_expression[currentIndex] == '"')
+                {
+                    tokens.Add(_readString(currentIndex));
+                }
+                else if (_expression[currentIndex] == '$') {
+                    tokens.Add(_readCellReference(currentIndex));
+                }
+                else
+                {
+                    var tokenRead = false;
+
+                    try
+                    {
+                        tokens.Add(_readBoolean(currentIndex));
+                        tokenRead = true;
+                    }
+                    catch (TokenizerException) { 
+                    }
+
+                    if (!tokenRead)
+                    {
+                        try
+                        {
+                            tokens.Add(_readOperator(currentIndex));
+                            tokenRead = true;
+                        }
+                        catch (TokenizerException) { }
+                    }
+
+
+                    if (!tokenRead)
+                    {
+                        tokens.Add(_readFunctionName(currentIndex));
+                    }
+                }
+
+                currentIndex = tokens[tokens.Count - 1].TokenEnd;
+            }
+
+            return tokens;
         }
 
-        private Token readOperator(int startIndex)
+        private Token _readOperator(int startIndex)
         {
             // The operators must be sorted by their length
-            string[] validOperators = { "==", "!=", "**", ">=", "<=", ">", "<",  "+", "-", "*", "/"};
+            string[] validOperators = { "==", "!=", "**", ">=", "<=", ">", "<",  "+", "-", "*", "/", "(", ")"};
 
             foreach (var validOperator in validOperators)
             {
@@ -53,7 +109,7 @@ namespace SharpTables
                 );
         }
 
-        private Token readFunctionName(int startIndex)
+        private Token _readFunctionName(int startIndex)
         {
             if (!Char.IsLetter(_expression[startIndex]))
             {
@@ -62,7 +118,7 @@ namespace SharpTables
 
             var tokenEnd = startIndex + 1;
 
-            while (Char.IsLetterOrDigit(_expression[tokenEnd]) && tokenEnd < _expression.Length)
+            while (tokenEnd < _expression.Length && Char.IsLetterOrDigit(_expression[tokenEnd]))
             {
                 tokenEnd++;
             }
@@ -70,7 +126,7 @@ namespace SharpTables
             return new Token(_expression, startIndex, tokenEnd, TokenType.FunctionName);
         }
 
-        private Token readBoolean(int startIndex)
+        private Token _readBoolean(int startIndex)
         {
             const string errorMessage = "Invalid boolen value. Expected \"True\" or \"False\".";
 
@@ -95,7 +151,7 @@ namespace SharpTables
             }
         }
 
-        private Token readNumber(int startIndex)
+        private Token _readNumber(int startIndex)
         {
             if (!Char.IsDigit(_expression[startIndex]))
             {
@@ -105,9 +161,9 @@ namespace SharpTables
             var tokenEnd = startIndex;
 
             while (
-                (Char.IsDigit(_expression[tokenEnd]) || _expression[tokenEnd] == '.') &&
-                tokenEnd < _expression.Length
-                )
+                tokenEnd < _expression.Length &&
+                (Char.IsDigit(_expression[tokenEnd]) || _expression[tokenEnd] == '.')
+            )
             {
                 tokenEnd++;
             }
@@ -120,7 +176,7 @@ namespace SharpTables
             return new Token(_expression, startIndex, tokenEnd, TokenType.NumberValue);
         }
 
-        private Token readCellReference(int startIndex)
+        private Token _readCellReference(int startIndex)
         {
             if (_expression[startIndex] != '$')
             {
@@ -129,7 +185,7 @@ namespace SharpTables
 
             var tokenEnd = startIndex + 1;
 
-            while (!Char.IsDigit(_expression[tokenEnd]) && tokenEnd < _expression.Length)
+            while (tokenEnd < _expression.Length && !Char.IsDigit(_expression[tokenEnd]))
             {
                 if ((int)_expression[tokenEnd] < 65 || (int)_expression[tokenEnd] > 90)
                 {
@@ -148,15 +204,15 @@ namespace SharpTables
                 throw new TokenizerException("Expeced a row index after the column index.");
             }
 
-            while (Char.IsDigit(_expression[tokenEnd]) && tokenEnd < _expression.Length)
+            while (tokenEnd < _expression.Length && Char.IsDigit(_expression[tokenEnd]))
             {
                 tokenEnd++;
             }
 
-            return new Token(_expression, startIndex + 1, tokenEnd, TokenType.CellReference);
+            return new Token(_expression, startIndex, tokenEnd, TokenType.CellReference);
         }
 
-        private Token readString(int startIndex)
+        private Token _readString(int startIndex)
         {
             if (_expression[startIndex] != '\"')
             {
@@ -165,16 +221,17 @@ namespace SharpTables
 
             var tokenEnd = startIndex + 1;
 
-            while(_expression[tokenEnd] != '\"')
+            while(tokenEnd < _expression.Length && _expression[tokenEnd] != '\"')
             {
                 tokenEnd++;
-                if (tokenEnd >= _expression.Length)
-                {
-                    throw new TokenizerException("Expected \" on the end of the string.");
-                }
             }
 
-            return new Token(_expression, startIndex + 1, tokenEnd - 1, TokenType.StringValue);
+            if (tokenEnd >= _expression.Length || _expression[tokenEnd] != '\"')
+            {
+                throw new TokenizerException("Expected \" on the end of the string.");
+            }
+
+            return new Token(_expression, startIndex, tokenEnd + 1, TokenType.StringValue);
         }
 
         private string _expression;
