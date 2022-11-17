@@ -18,7 +18,7 @@ namespace SharpTables
 
     class Token
     {
-        Token(string exrpession, int tokenBegin, int tokenEnd, TokenType type)
+        public Token(string exrpession, int tokenBegin, int tokenEnd, TokenType type)
         {
             this.Expression = exrpession;
             this.TokenBegin = tokenBegin;

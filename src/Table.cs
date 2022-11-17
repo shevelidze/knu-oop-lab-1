@@ -126,7 +126,6 @@ namespace SharpTables
             return Table.ColumnIndexToString(columnIndex) + rowIndex.ToString();
         }
 
-
         private Dictionary<string, string> _cellsExpressions;
     }
 }

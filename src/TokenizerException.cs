@@ -8,7 +8,7 @@ namespace SharpTables
 {
     class TokenizerException : Exception
     {
-        TokenizerException(string message): base(message)
+        public TokenizerException(string message): base(message)
         {
         }
     }
