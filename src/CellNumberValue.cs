@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SharpTables
 {
-    class CellNumberValue: ICellValue
+    public class CellNumberValue: ICellValue
     {
         public CellNumberValue(double value)
         {
@@ -17,6 +17,20 @@ namespace SharpTables
         public override string ToString()
         {
             return this.Value.ToString();
+        }
+        CellBooleanValue ICellValue.ToCellBooleanValue()
+        {
+            return new CellBooleanValue(this.Value != 0);
+        }
+
+        CellNumberValue ICellValue.ToCellNumberValue()
+        {
+            return this;
+        }
+
+        CellStringValue ICellValue.ToCellStringValue()
+        {
+            return new CellStringValue(this.ToString());
         }
     }
 }

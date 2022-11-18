@@ -11,23 +11,179 @@ namespace SharpTables
         public ExpressionExecutor(
             string expression,
             Dictionary<string, string> cellsExpressions,
-            Dictionary<string, ICellValue> calculatedValues
+            Dictionary<string, ICellValue> calculatedValues,
+            int stackSize
         )
         {
             _expression = expression;
             _cellsExpressions = cellsExpressions;
+            _stackSize = stackSize;
+            _calculatedValues = calculatedValues;
         }
 
         public ICellValue Execute()
         {
-            var tokens = this.tokenize();
-
-            return new CellNumberValue(777);
+            _tokenize();
+            return _executeExpression(0, 0).Item1;
         }
 
-        private List<Token> tokenize()
+        // sorted in the priority order
+        public static Operator[] Operators = {
+            new Operator("-",
+                (left, right) => new CellNumberValue(
+                    left.ToCellNumberValue().Value - right.ToCellNumberValue().Value),
+                (operand) => new CellNumberValue(-operand.ToCellNumberValue().Value)),
+            new Operator("+", (left, right) => new CellNumberValue(
+                left.ToCellNumberValue().Value + right.ToCellNumberValue().Value),
+                null),
+            new Operator("/", (left, right) => new CellNumberValue(
+                left.ToCellNumberValue().Value / right.ToCellNumberValue().Value),
+                null),
+            new Operator("*", (left, right) => new CellNumberValue(
+                left.ToCellNumberValue().Value * right.ToCellNumberValue().Value),
+                null),
+            new Operator("==", (left, right) => new CellBooleanValue(
+                left.ToCellStringValue().Value == right.ToCellStringValue().Value
+                ), null),
+            new Operator("<=", (left, right) => new CellBooleanValue(
+                left.ToCellNumberValue().Value <= right.ToCellNumberValue().Value),
+                null),
+            new Operator(">=", (left, right) => new CellBooleanValue(
+                left.ToCellNumberValue().Value >= right.ToCellNumberValue().Value),
+                null),
+            new Operator("<", (left, right) => new CellBooleanValue(
+                left.ToCellNumberValue().Value < right.ToCellNumberValue().Value),
+                null),
+            new Operator(">", (left, right) => new CellBooleanValue(
+                left.ToCellNumberValue().Value > right.ToCellNumberValue().Value),
+                null),
+            new Operator("!", null, (operand) => new CellBooleanValue(!(operand.ToCellBooleanValue()).Value)),
+        };
+
+        private ICellValue _resolveCellReference(string cellId)
         {
-            var tokens = new List<Token>();
+            if (_stackSize > 2)
+            {
+                throw new ExecutorException("Circular cell reference detected.");
+            }
+
+            if (!_cellsExpressions.ContainsKey(cellId))
+            {
+                throw new ExecutorException("Reference to the non-existing cell.");
+            }
+
+            if (_calculatedValues.ContainsKey(cellId))
+            {
+                return _calculatedValues[cellId];
+            }
+
+            var executor = new ExpressionExecutor(
+                _cellsExpressions[cellId],
+                _cellsExpressions,
+                _calculatedValues,
+                _stackSize + 1
+            );
+
+            var referenceValue = executor.Execute();
+            _calculatedValues[cellId] = referenceValue;
+
+            return referenceValue;
+        }
+
+        private Tuple<ICellValue, int> _executeExpression(int tokenIndex, int minPriority)
+        {
+            if (tokenIndex >= _tokens.Count)
+            {
+                return new Tuple<ICellValue, int>(new CellNumberValue(0), tokenIndex);
+            }
+
+            if (_tokens[tokenIndex].TokenType == TokenType.FunctionName)
+            {
+                return _executeFunctionExpression(tokenIndex);
+            }
+
+            if (minPriority >= ExpressionExecutor.Operators.Length)
+            {
+                var currentToken = _tokens[tokenIndex];
+                ICellValue value;
+
+                if (currentToken.TokenType == TokenType.NumberValue)
+                {
+                    value = new CellNumberValue(Double.Parse(currentToken.Value));
+                }
+                else if (currentToken.TokenType == TokenType.BooleanValue)
+                {
+                    value = new CellBooleanValue(currentToken.Value == "True");
+                }
+                else if (currentToken.TokenType == TokenType.StringValue)
+                {
+                    value = new CellStringValue(currentToken.Value.Substring(1, currentToken.Value.Length - 2));
+                }
+                else if (currentToken.TokenType == TokenType.CellReference)
+                {
+                    value = _resolveCellReference(currentToken.Value.Substring(1));
+                }
+                else
+                {
+                    throw new ExecutorException("Expected a value expression.");
+                }
+
+                return new Tuple<ICellValue, int>(value, tokenIndex + 1);
+            }
+
+            var (leftValue, nextTokenIndex) = _executeExpression(tokenIndex, minPriority + 1);
+
+            while (nextTokenIndex < _tokens.Count)
+            {
+                if (_tokens[nextTokenIndex].TokenType != TokenType.Operator)
+                {
+                    throw new ExecutorException("Expected an operator after the value.");
+                }
+
+                var operatorToken = _tokens[nextTokenIndex];
+
+                if (
+                    Array.FindIndex(
+                        ExpressionExecutor.Operators,
+                        operatorValue => operatorToken.Value == operatorValue.Text
+                    ) < minPriority)
+                {
+                    break;
+                }
+
+                if (nextTokenIndex == _tokens.Count - 1)
+                {
+                    throw new ExecutorException("Expected a value after the operator.");
+                }
+
+                var (rightValue, newNextTokenIndex) = _executeExpression(nextTokenIndex + 1, minPriority + 1);
+
+                var operatorObject = Array.Find(
+                    ExpressionExecutor.Operators,
+                    operatorObject => operatorObject.Text == operatorToken.Value
+                );
+
+                if (operatorObject == null)
+                {
+                    throw new ExecutorException(String.Format("Unknown operator {0}", operatorToken.Value));
+                }
+
+                leftValue = operatorObject.Execute(leftValue, rightValue);
+
+                nextTokenIndex = newNextTokenIndex;
+            }
+
+            return new Tuple<ICellValue, int>(leftValue, nextTokenIndex);
+        }
+
+        private Tuple<ICellValue, int> _executeFunctionExpression(int tokenIndex)
+        {
+            return new Tuple<ICellValue, int>(new CellNumberValue(777), tokenIndex + 1);
+        }
+
+        private List<Token> _tokenize()
+        {
+            _tokens = new List<Token>();
             var currentIndex = 0;
 
             while (currentIndex < _expression.Length)
@@ -40,14 +196,14 @@ namespace SharpTables
 
                 if (Char.IsDigit(_expression[currentIndex]))
                 {
-                    tokens.Add(_readNumber(currentIndex));
+                    _tokens.Add(_readNumber(currentIndex));
                 }
                 else if (_expression[currentIndex] == '"')
                 {
-                    tokens.Add(_readString(currentIndex));
+                    _tokens.Add(_readString(currentIndex));
                 }
                 else if (_expression[currentIndex] == '$') {
-                    tokens.Add(_readCellReference(currentIndex));
+                    _tokens.Add(_readCellReference(currentIndex));
                 }
                 else
                 {
@@ -55,7 +211,7 @@ namespace SharpTables
 
                     try
                     {
-                        tokens.Add(_readBoolean(currentIndex));
+                        _tokens.Add(_readBoolean(currentIndex));
                         tokenRead = true;
                     }
                     catch (TokenizerException) { 
@@ -65,7 +221,7 @@ namespace SharpTables
                     {
                         try
                         {
-                            tokens.Add(_readOperator(currentIndex));
+                            _tokens.Add(_readOperator(currentIndex));
                             tokenRead = true;
                         }
                         catch (TokenizerException) { }
@@ -74,20 +230,26 @@ namespace SharpTables
 
                     if (!tokenRead)
                     {
-                        tokens.Add(_readFunctionName(currentIndex));
+                        _tokens.Add(_readFunctionName(currentIndex));
                     }
                 }
 
-                currentIndex = tokens[tokens.Count - 1].TokenEnd;
+                currentIndex = _tokens[_tokens.Count - 1].TokenEnd;
             }
 
-            return tokens;
+            return _tokens;
         }
 
         private Token _readOperator(int startIndex)
         {
-            // The operators must be sorted by their length
-            string[] validOperators = { "==", "!=", "**", ">=", "<=", ">", "<",  "+", "-", "*", "/", "(", ")"};
+            string[] validOperators = new string[ExpressionExecutor.Operators.Length];
+
+            for (var operatorIndex = 0; operatorIndex < ExpressionExecutor.Operators.Length; operatorIndex++)
+            {
+                validOperators[operatorIndex] = ExpressionExecutor.Operators[operatorIndex].Text;
+            }
+
+            Array.Sort(validOperators, (left, right) => right.Length - left.Length);
 
             foreach (var validOperator in validOperators)
             {
@@ -236,5 +398,8 @@ namespace SharpTables
 
         private string _expression;
         private Dictionary<string, string> _cellsExpressions;
+        private Dictionary<string, ICellValue> _calculatedValues;
+        private List<Token> _tokens;
+        private int _stackSize;
     }
 }

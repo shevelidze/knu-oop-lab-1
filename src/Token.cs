@@ -35,5 +35,14 @@ namespace SharpTables
         public int TokenBegin { get; private set; }
         public int TokenEnd { get; private set; }
         public TokenType TokenType { get; private set; }
+
+        public bool IsValue
+        {
+            get
+            {
+                return this.TokenType == TokenType.BooleanValue || this.TokenType == TokenType.StringValue ||
+                    this.TokenType == TokenType.NumberValue;
+            }
+        }
     }
 }

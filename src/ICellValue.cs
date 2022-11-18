@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace SharpTables
 {
-    interface ICellValue
+    public interface ICellValue
     {
         public string ToString();
+        public CellStringValue ToCellStringValue();
+        public CellNumberValue ToCellNumberValue();
+        public CellBooleanValue ToCellBooleanValue();
     }
 }

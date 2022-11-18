@@ -45,7 +45,8 @@ namespace SharpTables
                     ExpressionExecutor executor = new ExpressionExecutor(
                         entry.Value,
                         this._cellsExpressions,
-                        calculatedValues
+                        calculatedValues,
+                        0
                     );
                     calculatedValues.Add(entry.Key, executor.Execute());
                 }
