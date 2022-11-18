@@ -117,14 +117,14 @@ namespace SharpTables
             }
 
             return new Tuple<int, int>(
-                Int32.Parse(cellId.Substring(currentIndex)),
+                Int32.Parse(cellId.Substring(currentIndex)) - 1,
                 Table.StringToColumnIndex(columnId)
             );
         }
 
         public static string IndexesToCellId(int rowIndex, int columnIndex)
         {
-            return Table.ColumnIndexToString(columnIndex) + rowIndex.ToString();
+            return Table.ColumnIndexToString(columnIndex) + (rowIndex + 1).ToString();
         }
 
         private Dictionary<string, string> _cellsExpressions;

@@ -361,7 +361,7 @@ namespace SharpTables
                 throw new TokenizerException("Expected a column index before the row index.");
             }
 
-            if (!Char.IsDigit(_expression[tokenEnd]))
+            if (tokenEnd >= _expression.Length || !Char.IsDigit(_expression[tokenEnd]))
             {
                 throw new TokenizerException("Expeced a row index after the column index.");
             }
