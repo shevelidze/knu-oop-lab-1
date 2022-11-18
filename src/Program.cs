@@ -31,17 +31,15 @@ namespace SharpTables
                         form.SetCellText(cellIndexes.Item1, cellIndexes.Item2, entry.Value.ToString());
                     }
                 }
-                catch (TokenizerException e)
+                catch (Exception e)
                 {
-                    MessageBox.Show("Tokenizer exception: " + e.Message);
-                    table.SetCellExpression(rowIndex, columnIndex, "");
-                    form.SetCellText(rowIndex, columnIndex, "");
-                }
-                catch (ExecutorException e)
-                {
-                    MessageBox.Show("Executor exception: " + e.Message);
-                    table.SetCellExpression(rowIndex, columnIndex, "");
-                    form.SetCellText(rowIndex, columnIndex, "");
+                    if (e is TokenizerException || e is ExecutorException)
+                    {
+                        MessageBox.Show((e is TokenizerException ? "Tokenizer exception: " :
+                            "Executor exception: ") + e.Message);
+                        table.SetCellExpression(rowIndex, columnIndex, "");
+                        form.SetCellText(rowIndex, columnIndex, "");
+                    }
                 }
              },
             (rowIndex, columnIndex, form) => {

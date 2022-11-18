@@ -33,8 +33,15 @@ namespace SharpTables
                 (left, right) => new CellNumberValue(
                     left.ToCellNumberValue().Value - right.ToCellNumberValue().Value),
                 (operand) => new CellNumberValue(-operand.ToCellNumberValue().Value)),
-            new Operator("+", (left, right) => new CellNumberValue(
-                left.ToCellNumberValue().Value + right.ToCellNumberValue().Value),
+            new Operator("+", (left, right) => {
+                if (left is CellStringValue || right is CellStringValue)
+                {
+                    return new CellStringValue(left.ToCellStringValue().Value + right.ToCellStringValue().Value);
+                }
+
+                return new CellNumberValue(
+                    left.ToCellNumberValue().Value + right.ToCellNumberValue().Value);
+                },
                 null),
             new Operator("/", (left, right) => new CellNumberValue(
                 left.ToCellNumberValue().Value / right.ToCellNumberValue().Value),
@@ -62,7 +69,7 @@ namespace SharpTables
 
         private ICellValue _resolveCellReference(string cellId)
         {
-            if (_stackSize > 2)
+            if (_stackSize > 20)
             {
                 throw new ExecutorException("Circular cell reference detected.");
             }
@@ -90,7 +97,7 @@ namespace SharpTables
             return referenceValue;
         }
 
-        private Tuple<ICellValue, int> _executeExpression(int tokenIndex, int minPriority)
+        private Tuple<ICellValue, int> _executeExpression(int tokenIndex, int minPriority, bool allowClosingBracket = false)
         {
             if (tokenIndex >= _tokens.Count)
             {
@@ -131,19 +138,24 @@ namespace SharpTables
                 return new Tuple<ICellValue, int>(value, tokenIndex + 1);
             }
 
+            ICellValue leftValue;
+            int nextTokenIndex;
+
             if (_tokens[tokenIndex].Value == "(")
             {
-                var (value, closingBracketTokenIndex) = _executeExpression(tokenIndex + 1, 0);
+                (leftValue, nextTokenIndex) = _executeExpression(tokenIndex + 1, 0, true);
 
-                if (_tokens.Count <= closingBracketTokenIndex || _tokens[closingBracketTokenIndex].Value != ")")
+                if (_tokens.Count <= nextTokenIndex || _tokens[nextTokenIndex].Value != ")")
                 {
                     throw new ExecutorException("Expected ) after (.");
                 }
 
-                return new Tuple<ICellValue, int>(value, closingBracketTokenIndex + 1);
+                nextTokenIndex++;
             }
-
-            var (leftValue, nextTokenIndex) = _executeExpression(tokenIndex, minPriority + 1);
+            else
+            {
+                (leftValue, nextTokenIndex) = _executeExpression(tokenIndex, minPriority + 1, allowClosingBracket);
+            }
 
             while (nextTokenIndex < _tokens.Count)
             {
@@ -154,23 +166,18 @@ namespace SharpTables
 
                 var operatorToken = _tokens[nextTokenIndex];
 
-                if (
-                    Array.FindIndex(
+                var operatorIndex = Array.FindIndex(
                         ExpressionExecutor.Operators,
                         operatorValue => operatorToken.Value == operatorValue.Text
-                    ) < minPriority || 
-                    operatorToken.Value == ")"
+                    );
+
+                if (
+                    allowClosingBracket && operatorToken.Value == ")" ||
+                    operatorIndex >= 0 && operatorIndex < minPriority
                     )
                 {
                     break;
                 }
-
-                if (nextTokenIndex == _tokens.Count - 1)
-                {
-                    throw new ExecutorException("Expected a value after the operator.");
-                }
-
-                var (rightValue, newNextTokenIndex) = _executeExpression(nextTokenIndex + 1, minPriority + 1);
 
                 var operatorObject = Array.Find(
                     ExpressionExecutor.Operators,
@@ -181,6 +188,14 @@ namespace SharpTables
                 {
                     throw new ExecutorException(String.Format("Unknown operator {0}", operatorToken.Value));
                 }
+
+                if (nextTokenIndex == _tokens.Count - 1)
+                {
+                    throw new ExecutorException("Expected a value after the operator.");
+                }
+
+
+                var (rightValue, newNextTokenIndex) = _executeExpression(nextTokenIndex + 1, minPriority + 1, allowClosingBracket);
 
                 leftValue = operatorObject.Execute(leftValue, rightValue);
 
