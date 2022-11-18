@@ -131,6 +131,18 @@ namespace SharpTables
                 return new Tuple<ICellValue, int>(value, tokenIndex + 1);
             }
 
+            if (_tokens[tokenIndex].Value == "(")
+            {
+                var (value, closingBracketTokenIndex) = _executeExpression(tokenIndex + 1, 0);
+
+                if (_tokens.Count <= closingBracketTokenIndex || _tokens[closingBracketTokenIndex].Value != ")")
+                {
+                    throw new ExecutorException("Expected ) after (.");
+                }
+
+                return new Tuple<ICellValue, int>(value, closingBracketTokenIndex + 1);
+            }
+
             var (leftValue, nextTokenIndex) = _executeExpression(tokenIndex, minPriority + 1);
 
             while (nextTokenIndex < _tokens.Count)
@@ -146,7 +158,9 @@ namespace SharpTables
                     Array.FindIndex(
                         ExpressionExecutor.Operators,
                         operatorValue => operatorToken.Value == operatorValue.Text
-                    ) < minPriority)
+                    ) < minPriority || 
+                    operatorToken.Value == ")"
+                    )
                 {
                     break;
                 }
@@ -242,12 +256,15 @@ namespace SharpTables
 
         private Token _readOperator(int startIndex)
         {
-            string[] validOperators = new string[ExpressionExecutor.Operators.Length];
+            string[] validOperators = new string[ExpressionExecutor.Operators.Length + 2];
 
             for (var operatorIndex = 0; operatorIndex < ExpressionExecutor.Operators.Length; operatorIndex++)
             {
                 validOperators[operatorIndex] = ExpressionExecutor.Operators[operatorIndex].Text;
             }
+
+            validOperators[ExpressionExecutor.Operators.Length] = "(";
+            validOperators[ExpressionExecutor.Operators.Length + 1] = ")";
 
             Array.Sort(validOperators, (left, right) => right.Length - left.Length);
 
