@@ -90,7 +90,11 @@ namespace SharpTables
             new TableFunction("now", (arguments) =>
             {
                 return new CellStringValue(DateTime.Now.ToString());
-            })
+            }, 0),
+            new TableFunction("hello", (arguments) =>
+            {
+                return new CellStringValue("Welcome to the SharpTables!");
+            }, 0),
         };
 
         private ICellValue _resolveCellReference(string cellId)
