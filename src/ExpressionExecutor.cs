@@ -85,6 +85,14 @@ namespace SharpTables
             new Operator("!", null, (operand) => new CellBooleanValue(!(operand.ToCellBooleanValue()).Value)),
         };
 
+        public static TableFunction[] Functions =
+        {
+            new TableFunction("now", (arguments) =>
+            {
+                return new CellStringValue(DateTime.Now.ToString());
+            })
+        };
+
         private ICellValue _resolveCellReference(string cellId)
         {
             if (_stackSize > 20)
@@ -125,11 +133,6 @@ namespace SharpTables
             if (tokenIndex >= _tokens.Count)
             {
                 return new Tuple<ICellValue, int>(new CellNumberValue(0), tokenIndex);
-            }
-
-            if (_tokens[tokenIndex].TokenType == TokenType.FunctionName)
-            {
-                return _executeFunctionExpression(tokenIndex);
             }
 
             if (minPriority >= ExpressionExecutor.Operators.Length)
@@ -183,12 +186,20 @@ namespace SharpTables
                         possibleOperator => possibleOperator == operatorObject
                     );
                 ICellValue operand;
-                (operand, nextTokenIndex) = _executeExpression(tokenIndex + 1, operatorIndex);
+                (operand, nextTokenIndex) = _executeExpression(tokenIndex + 1, operatorIndex, allowClosingBracket, allowComma);
                 leftValue = operatorObject.Execute(operand);
+            }
+            else if (_tokens[tokenIndex].TokenType == TokenType.FunctionName)
+            {
+                (leftValue, nextTokenIndex) = _executeFunctionExpression(tokenIndex);
             }
             else
             {
-                (leftValue, nextTokenIndex) = _executeExpression(tokenIndex, minPriority + 1, allowClosingBracket);
+                (leftValue, nextTokenIndex) = _executeExpression(
+                    tokenIndex,
+                    minPriority + 1,
+                    allowClosingBracket,
+                    allowComma);
             }
 
             while (nextTokenIndex < _tokens.Count)
@@ -222,7 +233,12 @@ namespace SharpTables
                 }
 
 
-                var (rightValue, newNextTokenIndex) = _executeExpression(nextTokenIndex + 1, minPriority + 1, allowClosingBracket);
+                var (rightValue, newNextTokenIndex) = _executeExpression(
+                    nextTokenIndex + 1,
+                    minPriority + 1,
+                    allowClosingBracket,
+                    allowComma
+                );
 
                 leftValue = operatorObject.Execute(leftValue, rightValue);
 
@@ -234,7 +250,61 @@ namespace SharpTables
 
         private Tuple<ICellValue, int> _executeFunctionExpression(int tokenIndex)
         {
-            return new Tuple<ICellValue, int>(new CellNumberValue(777), tokenIndex + 1);
+            var function = _findFunction(_tokens[tokenIndex].Value);
+
+            tokenIndex++;
+
+            if (tokenIndex >= _tokens.Count || _tokens[tokenIndex].Value != "(")
+            {
+                throw new ExecutorException("Expected ( after the function name.");
+            }
+
+            tokenIndex++;
+
+            var arguments = new List<ICellValue>();
+
+            while (tokenIndex < _tokens.Count && _tokens[tokenIndex].Value != ")")
+            {
+                var (value, nextTokenIndex) = _executeExpression(tokenIndex, 0, true, true);
+
+                arguments.Add(value);
+
+                tokenIndex = nextTokenIndex;
+
+                var token = _tokens[tokenIndex];
+
+                if (token.Value == ",")
+                {
+                    tokenIndex++;
+                }
+                else if (token.Value != ")")
+                {
+                    throw new ExecutorException(String.Format("Expected , or ), but got {0}.", token.Value));
+                }
+            }
+            
+            if (tokenIndex >= _tokens.Count || _tokens[tokenIndex].Value != ")")
+            {
+                throw new ExecutorException("Expected ) in the end of the function call.");
+            }
+
+            return new Tuple<ICellValue, int>(function.Execute(arguments), tokenIndex + 1);
+        }
+
+        private TableFunction _findFunction(string functionName)
+        {
+            var function = Array.Find(
+                ExpressionExecutor.Functions,
+                function => function.Name == functionName
+                );
+            
+            if (function == null)
+            {
+                throw new ExecutorException(String.Format("Unknown function {0}", functionName));
+            }
+
+            return function;
+
         }
 
         private List<Token> _tokenize()
