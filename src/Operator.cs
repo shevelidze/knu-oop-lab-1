@@ -40,6 +40,21 @@ namespace SharpTables
             return _binaryExecutor(left, right);
         }
 
+        public bool IsUnary {
+            get
+            {
+                return _unaryExecutor != null;
+            }
+        }
+
+        public bool IsBinary
+        {
+            get
+            {
+                return _binaryExecutor != null;
+            }
+        }
+
         private BinaryOperatorExecutor _binaryExecutor;
         private UnaryOperatorExecutor _unaryExecutor;
     }

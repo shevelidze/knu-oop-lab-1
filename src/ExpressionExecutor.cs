@@ -29,10 +29,34 @@ namespace SharpTables
 
         // sorted in the priority order
         public static Operator[] Operators = {
+            new Operator("||", (left, right) => new CellBooleanValue(
+                left.ToCellBooleanValue().Value || right.ToCellBooleanValue().Value
+                ), null),
+            new Operator("&&", (left, right) => new CellBooleanValue(
+                left.ToCellBooleanValue().Value && right.ToCellBooleanValue().Value
+                ), null),
+            new Operator("^", (left, right) => new CellBooleanValue(
+                left.ToCellBooleanValue().Value ^ right.ToCellBooleanValue().Value
+                ), null),
+            new Operator("==", (left, right) => new CellBooleanValue(
+                left.ToCellStringValue().Value == right.ToCellStringValue().Value
+                ), null),
+            new Operator("<=", (left, right) => new CellBooleanValue(
+                left.ToCellNumberValue().Value <= right.ToCellNumberValue().Value),
+                null),
+            new Operator(">=", (left, right) => new CellBooleanValue(
+                left.ToCellNumberValue().Value >= right.ToCellNumberValue().Value),
+                null),
+            new Operator("<", (left, right) => new CellBooleanValue(
+                left.ToCellNumberValue().Value < right.ToCellNumberValue().Value),
+                null),
+            new Operator(">", (left, right) => new CellBooleanValue(
+                left.ToCellNumberValue().Value > right.ToCellNumberValue().Value),
+                null),
             new Operator("-",
                 (left, right) => new CellNumberValue(
                     left.ToCellNumberValue().Value - right.ToCellNumberValue().Value),
-                (operand) => new CellNumberValue(-operand.ToCellNumberValue().Value)),
+                null),
             new Operator("+", (left, right) => {
                 if (left is CellStringValue || right is CellStringValue)
                 {
@@ -49,21 +73,15 @@ namespace SharpTables
             new Operator("*", (left, right) => new CellNumberValue(
                 left.ToCellNumberValue().Value * right.ToCellNumberValue().Value),
                 null),
-            new Operator("==", (left, right) => new CellBooleanValue(
-                left.ToCellStringValue().Value == right.ToCellStringValue().Value
-                ), null),
-            new Operator("<=", (left, right) => new CellBooleanValue(
-                left.ToCellNumberValue().Value <= right.ToCellNumberValue().Value),
+            new Operator("%", (left, right) => new CellNumberValue(
+                left.ToCellNumberValue().Value % right.ToCellNumberValue().Value),
                 null),
-            new Operator(">=", (left, right) => new CellBooleanValue(
-                left.ToCellNumberValue().Value >= right.ToCellNumberValue().Value),
+            new Operator("**", (left, right) => new CellNumberValue(
+                Math.Pow(left.ToCellNumberValue().Value, right.ToCellNumberValue().Value)),
                 null),
-            new Operator("<", (left, right) => new CellBooleanValue(
-                left.ToCellNumberValue().Value < right.ToCellNumberValue().Value),
-                null),
-            new Operator(">", (left, right) => new CellBooleanValue(
-                left.ToCellNumberValue().Value > right.ToCellNumberValue().Value),
-                null),
+            new Operator("-",
+                null,
+                (operand) => new CellNumberValue(-operand.ToCellNumberValue().Value)),
             new Operator("!", null, (operand) => new CellBooleanValue(!(operand.ToCellBooleanValue()).Value)),
         };
 
@@ -97,7 +115,12 @@ namespace SharpTables
             return referenceValue;
         }
 
-        private Tuple<ICellValue, int> _executeExpression(int tokenIndex, int minPriority, bool allowClosingBracket = false)
+        private Tuple<ICellValue, int> _executeExpression(
+            int tokenIndex,
+            int minPriority,
+            bool allowClosingBracket = false,
+            bool allowComma = false
+            )
         {
             if (tokenIndex >= _tokens.Count)
             {
@@ -152,6 +175,17 @@ namespace SharpTables
 
                 nextTokenIndex++;
             }
+            else if (_tokens[tokenIndex].TokenType == TokenType.Operator)
+            {
+                var operatorObject = _findUnaryOperator(_tokens[tokenIndex].Value);
+                var operatorIndex = Array.FindIndex(
+                        ExpressionExecutor.Operators,
+                        possibleOperator => possibleOperator == operatorObject
+                    );
+                ICellValue operand;
+                (operand, nextTokenIndex) = _executeExpression(tokenIndex + 1, operatorIndex);
+                leftValue = operatorObject.Execute(operand);
+            }
             else
             {
                 (leftValue, nextTokenIndex) = _executeExpression(tokenIndex, minPriority + 1, allowClosingBracket);
@@ -173,21 +207,14 @@ namespace SharpTables
 
                 if (
                     allowClosingBracket && operatorToken.Value == ")" ||
+                    allowComma && operatorToken.Value == "," ||
                     operatorIndex >= 0 && operatorIndex < minPriority
                     )
                 {
                     break;
                 }
 
-                var operatorObject = Array.Find(
-                    ExpressionExecutor.Operators,
-                    operatorObject => operatorObject.Text == operatorToken.Value
-                );
-
-                if (operatorObject == null)
-                {
-                    throw new ExecutorException(String.Format("Unknown operator {0}", operatorToken.Value));
-                }
+                var operatorObject = _findBinaryOperator(operatorToken.Value);
 
                 if (nextTokenIndex == _tokens.Count - 1)
                 {
@@ -269,9 +296,39 @@ namespace SharpTables
             return _tokens;
         }
 
+        private Operator _findBinaryOperator(string operatorText)
+        {
+            var operatorObject = Array.Find(
+                ExpressionExecutor.Operators,
+                operatorObject => operatorObject.Text == operatorText && operatorObject.IsBinary
+                );
+            
+            if (operatorObject == null)
+            {
+                throw new ExecutorException(String.Format("Unknown binary operator {0}", operatorText));
+            }
+
+            return operatorObject;
+        }
+        private Operator _findUnaryOperator(string operatorText)
+        {
+            var operatorObject = Array.Find(
+                ExpressionExecutor.Operators,
+                operatorObject => operatorObject.Text == operatorText && operatorObject.IsUnary
+                );
+            
+            if (operatorObject == null)
+            {
+                throw new ExecutorException(String.Format("Unknown unary operator {0}", operatorText));
+            }
+
+            return operatorObject;
+        }
+
+
         private Token _readOperator(int startIndex)
         {
-            string[] validOperators = new string[ExpressionExecutor.Operators.Length + 2];
+            string[] validOperators = new string[ExpressionExecutor.Operators.Length + 3];
 
             for (var operatorIndex = 0; operatorIndex < ExpressionExecutor.Operators.Length; operatorIndex++)
             {
@@ -280,6 +337,7 @@ namespace SharpTables
 
             validOperators[ExpressionExecutor.Operators.Length] = "(";
             validOperators[ExpressionExecutor.Operators.Length + 1] = ")";
+            validOperators[ExpressionExecutor.Operators.Length + 2] = ",";
 
             Array.Sort(validOperators, (left, right) => right.Length - left.Length);
 
