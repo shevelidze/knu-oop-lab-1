@@ -70,6 +70,9 @@ namespace SharpTables
             new Operator("/", (left, right) => new CellNumberValue(
                 left.ToCellNumberValue().Value / right.ToCellNumberValue().Value),
                 null),
+            new Operator("//", (left, right) => new CellNumberValue(
+                (int)(left.ToCellNumberValue().Value) / (int)(right.ToCellNumberValue().Value)),
+                null),
             new Operator("*", (left, right) => new CellNumberValue(
                 left.ToCellNumberValue().Value * right.ToCellNumberValue().Value),
                 null),
@@ -82,6 +85,10 @@ namespace SharpTables
             new Operator("-",
                 null,
                 (operand) => new CellNumberValue(-operand.ToCellNumberValue().Value)),
+            new Operator("+",
+                null,
+                (operand) => operand.ToCellNumberValue()),
+
             new Operator("!", null, (operand) => new CellBooleanValue(!(operand.ToCellBooleanValue()).Value)),
         };
 
@@ -95,6 +102,30 @@ namespace SharpTables
             {
                 return new CellStringValue("Welcome to the SharpTables!");
             }, 0),
+            new TableFunction("inc", (arguments) =>
+            {
+                return new CellNumberValue(arguments[0].ToCellNumberValue().Value + 1);
+            }, 1),
+            new TableFunction("dec", (arguments) =>
+            {
+                return new CellNumberValue(arguments[0].ToCellNumberValue().Value - 1);
+            }, 1),
+            new TableFunction("min", (arguments) =>
+            {
+                if (arguments.Count == 0)
+                {
+                    throw new ExecutorException("min function can\'t accept 0 arguments.");
+                }
+                return new CellNumberValue(arguments.Select(argument => argument.ToCellNumberValue().Value).Min());
+            }),
+            new TableFunction("max", (arguments) =>
+            {
+                if (arguments.Count == 0)
+                {
+                    throw new ExecutorException("max function can\'t accept 0 arguments.");
+                }
+                return new CellNumberValue(arguments.Select(argument => argument.ToCellNumberValue().Value).Max());
+            })
         };
 
         private ICellValue _resolveCellReference(string cellId)
