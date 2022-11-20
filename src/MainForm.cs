@@ -12,14 +12,24 @@ namespace SharpTables
 {
     public delegate void CellChnageHandler(int rowIndex, int colIndex, string text, MainForm form);
     public delegate void CellFocusHandler(int rowIndex, int colIndex, MainForm form);
+
+    public delegate void MainFormVoidHandler(MainForm form);
+
     public partial class MainForm : Form
     {
-        public MainForm(CellChnageHandler cellChnageHandler, CellFocusHandler cellFocusHandler)
+        public MainForm(
+            CellChnageHandler cellChnageHandler,
+            CellFocusHandler cellFocusHandler,
+            MainFormVoidHandler undoHandler,
+            MainFormVoidHandler redoHandler
+            )
         {
             InitializeComponent();
 
             _cellChnageHandler = cellChnageHandler;
             _cellFocusHandler = cellFocusHandler;
+            _undoHandler = undoHandler;
+            _redoHandler = redoHandler;
 
             const int initialRowsNumber = 10;
             const int initialColumnsNumber = 5;
@@ -72,6 +82,8 @@ namespace SharpTables
 
         private CellChnageHandler _cellChnageHandler;
         private CellFocusHandler _cellFocusHandler;
+        private MainFormVoidHandler _undoHandler;
+        private MainFormVoidHandler _redoHandler;
 
         private void addColumnToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -98,6 +110,16 @@ namespace SharpTables
         private void mainGridView_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
         {
             _cellFocusHandler(e.RowIndex, e.ColumnIndex, this);
+        }
+
+        private void undoMenuItem_Click(object sender, EventArgs e)
+        {
+            _undoHandler(this);
+        }
+
+        private void redoMenuItem_Click(object sender, EventArgs e)
+        {
+            _redoHandler(this);
         }
     }
 }

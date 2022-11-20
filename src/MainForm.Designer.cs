@@ -39,9 +39,7 @@ namespace SharpTables
             this.undoMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.redoMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addColumnToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.removeColumnToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addRowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.removeRowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainGridView = new System.Windows.Forms.DataGridView();
             this.mainMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mainGridView)).BeginInit();
@@ -99,9 +97,7 @@ namespace SharpTables
             this.undoMenuItem,
             this.redoMenuItem,
             this.addColumnToolStripMenuItem,
-            this.removeColumnToolStripMenuItem,
-            this.addRowToolStripMenuItem,
-            this.removeRowToolStripMenuItem});
+            this.addRowToolStripMenuItem});
             this.editMenuItem.Name = "editMenuItem";
             this.editMenuItem.Size = new System.Drawing.Size(39, 20);
             this.editMenuItem.Text = "Edit";
@@ -109,40 +105,30 @@ namespace SharpTables
             // undoMenuItem
             // 
             this.undoMenuItem.Name = "undoMenuItem";
-            this.undoMenuItem.Size = new System.Drawing.Size(161, 22);
+            this.undoMenuItem.Size = new System.Drawing.Size(180, 22);
             this.undoMenuItem.Text = "Undo";
+            this.undoMenuItem.Click += new System.EventHandler(this.undoMenuItem_Click);
             // 
             // redoMenuItem
             // 
             this.redoMenuItem.Name = "redoMenuItem";
-            this.redoMenuItem.Size = new System.Drawing.Size(161, 22);
+            this.redoMenuItem.Size = new System.Drawing.Size(180, 22);
             this.redoMenuItem.Text = "Redo";
+            this.redoMenuItem.Click += new System.EventHandler(this.redoMenuItem_Click);
             // 
             // addColumnToolStripMenuItem
             // 
             this.addColumnToolStripMenuItem.Name = "addColumnToolStripMenuItem";
-            this.addColumnToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
+            this.addColumnToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.addColumnToolStripMenuItem.Text = "Add column";
             this.addColumnToolStripMenuItem.Click += new System.EventHandler(this.addColumnToolStripMenuItem_Click);
-            // 
-            // removeColumnToolStripMenuItem
-            // 
-            this.removeColumnToolStripMenuItem.Name = "removeColumnToolStripMenuItem";
-            this.removeColumnToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
-            this.removeColumnToolStripMenuItem.Text = "Remove column";
             // 
             // addRowToolStripMenuItem
             // 
             this.addRowToolStripMenuItem.Name = "addRowToolStripMenuItem";
-            this.addRowToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
+            this.addRowToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.addRowToolStripMenuItem.Text = "Add row";
             this.addRowToolStripMenuItem.Click += new System.EventHandler(this.addRowToolStripMenuItem_Click);
-            // 
-            // removeRowToolStripMenuItem
-            // 
-            this.removeRowToolStripMenuItem.Name = "removeRowToolStripMenuItem";
-            this.removeRowToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
-            this.removeRowToolStripMenuItem.Text = "Remove row";
             // 
             // mainGridView
             // 
@@ -189,9 +175,7 @@ namespace SharpTables
         private System.Windows.Forms.ToolStripMenuItem redoMenuItem;
         private System.Windows.Forms.DataGridView mainGridView;
         private System.Windows.Forms.ToolStripMenuItem addColumnToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem removeColumnToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem addRowToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem removeRowToolStripMenuItem;
     }
 }
 

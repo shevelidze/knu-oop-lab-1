@@ -37,14 +37,43 @@ namespace SharpTables
                     {
                         MessageBox.Show((e is TokenizerException ? "Tokenizer exception: " :
                             "Executor exception: ") + e.Message);
-                        table.SetCellExpression(rowIndex, columnIndex, "");
-                        form.SetCellText(rowIndex, columnIndex, "");
+                        form.SetCellText(rowIndex, columnIndex, table.GetCellExpression(rowIndex, columnIndex));
                     }
                 }
              },
             (rowIndex, columnIndex, form) => {
                 form.SetCellText(rowIndex, columnIndex, table.GetCellExpression(rowIndex, columnIndex));
-            }));
+            },
+            form =>
+            {
+                table.Undo();
+
+                var values = table.Calculate();
+                
+                form.Clear();
+                
+                foreach (var entry in values)
+                {
+                    var cellIndexes = Table.ParseCellId(entry.Key);
+                    form.SetCellText(cellIndexes.Item1, cellIndexes.Item2, entry.Value.ToString());
+                }
+            },
+            form =>
+            {
+                table.Redo();
+
+                var values = table.Calculate();
+                
+                form.Clear();
+                
+                foreach (var entry in values)
+                {
+                    var cellIndexes = Table.ParseCellId(entry.Key);
+                    form.SetCellText(cellIndexes.Item1, cellIndexes.Item2, entry.Value.ToString());
+                }
+            }
+            )
+            );
         }
     }
 }

@@ -10,41 +10,54 @@ namespace SharpTables
     {
         public Table()
         {
-            _cellsExpressions = new Dictionary<string, string>();
+            _history = new List<Dictionary<string, string>>();
+            _history.Add(new Dictionary<string, string>());
+            _historyIndex = 0;
         }
 
         public Dictionary<string, ICellValue> SetCellExpression(int rowIndex, int columnIndex, string expression)
         {
+            var newEdition = new Dictionary<string, string>(_cellsExpressions);
+
             if (expression.Length == 0)
             {
-                this._cellsExpressions.Remove(Table.IndexesToCellId(rowIndex, columnIndex));
+                newEdition.Remove(Table.IndexesToCellId(rowIndex, columnIndex));
             }
             else
             {
-                this._cellsExpressions[Table.IndexesToCellId(rowIndex, columnIndex)] = expression;
+                newEdition[Table.IndexesToCellId(rowIndex, columnIndex)] = expression;
             }
 
-            return this.Calculate();
+            var calculationResult = this.Calculate(newEdition);
+
+            _pushEdition(newEdition);
+
+            return calculationResult;
         }
 
         public string GetCellExpression(int rowIndex, int columnIndex)
         {
             var cellId = Table.IndexesToCellId(rowIndex, columnIndex);
-            
+
             return _cellsExpressions.ContainsKey(cellId) ? _cellsExpressions[cellId] : "";
         }
 
-        public Dictionary<string, ICellValue> Calculate()
+        public Dictionary<string, ICellValue> Calculate(Dictionary<string, string> edition = null)
         {
+            if (edition == null)
+            {
+                edition = _cellsExpressions;
+            }
+
             Dictionary<string, ICellValue> calculatedValues = new Dictionary<string, ICellValue>();
 
-            foreach (var entry in _cellsExpressions)
+            foreach (var entry in edition)
             {
                 if (!calculatedValues.ContainsKey(entry.Key))
                 {
                     ExpressionExecutor executor = new ExpressionExecutor(
                         entry.Value,
-                        this._cellsExpressions,
+                        edition,
                         calculatedValues,
                         0
                     );
@@ -54,7 +67,23 @@ namespace SharpTables
 
             return calculatedValues;
         }
-        
+
+        public void Undo()
+        {
+            if (_historyIndex > 0)
+            {
+                _historyIndex--;
+            }
+        }
+
+        public void Redo()
+        {
+            if (_historyIndex < _history.Count - 1)
+            {
+                _historyIndex++;
+            }
+        }
+
         public static string ColumnIndexToString(int columnIndex)
         {
 
@@ -127,6 +156,26 @@ namespace SharpTables
             return Table.ColumnIndexToString(columnIndex) + (rowIndex + 1).ToString();
         }
 
-        private Dictionary<string, string> _cellsExpressions;
+        private void _pushEdition(Dictionary<string, string> edition)
+        {
+            if (_historyIndex != _history.Count - 1)
+            {
+                _history.RemoveRange(_historyIndex + 1, _history.Count - 1 - _historyIndex);
+            }
+
+            _history.Add(edition);
+            _historyIndex = _history.Count - 1;
+        }
+
+        private Dictionary<string, string> _cellsExpressions
+        {
+            get
+            {
+                return _history[_historyIndex];
+            }
+        }
+
+        private List<Dictionary<string, string>> _history;
+        private int _historyIndex;
     }
 }
