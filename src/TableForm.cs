@@ -153,5 +153,15 @@ namespace SharpTables
         {
             _saveAsClickHandler(this);
         }
+
+        private void TableForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void helpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("SharpTables\n2022 © Denys Shevel");
+        }
     }
 }

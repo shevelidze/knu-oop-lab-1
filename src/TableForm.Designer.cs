@@ -35,6 +35,7 @@ namespace SharpTables
             this.openWorkbookMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.undoMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.redoMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -62,7 +63,8 @@ namespace SharpTables
             this.newWorkbookMenuItem,
             this.openWorkbookMenuItem,
             this.saveMenuItem,
-            this.saveAsMenuItem});
+            this.saveAsMenuItem,
+            this.helpToolStripMenuItem});
             this.fileMenuItem.Name = "fileMenuItem";
             this.fileMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileMenuItem.Text = "File";
@@ -94,6 +96,13 @@ namespace SharpTables
             this.saveAsMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveAsMenuItem.Text = "Save as";
             this.saveAsMenuItem.Click += new System.EventHandler(this.saveAsMenuItem_Click);
+            // 
+            // helpToolStripMenuItem
+            // 
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.helpToolStripMenuItem.Text = "About";
+            this.helpToolStripMenuItem.Click += new System.EventHandler(this.helpToolStripMenuItem_Click);
             // 
             // editMenuItem
             // 
@@ -159,6 +168,7 @@ namespace SharpTables
             this.MainMenuStrip = this.mainMenuStrip;
             this.Name = "TableForm";
             this.Text = "SharpTables";
+            this.Load += new System.EventHandler(this.TableForm_Load);
             this.mainMenuStrip.ResumeLayout(false);
             this.mainMenuStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mainGridView)).EndInit();
@@ -180,6 +190,7 @@ namespace SharpTables
         private System.Windows.Forms.DataGridView mainGridView;
         private System.Windows.Forms.ToolStripMenuItem addColumnToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem addRowToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
     }
 }
 
