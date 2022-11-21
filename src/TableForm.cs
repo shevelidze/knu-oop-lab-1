@@ -10,14 +10,14 @@ using System.Windows.Forms;
 
 namespace SharpTables
 {
-    public delegate void CellChnageHandler(int rowIndex, int colIndex, string text, MainForm form);
-    public delegate void CellFocusHandler(int rowIndex, int colIndex, MainForm form);
+    public delegate void CellChnageHandler(int rowIndex, int colIndex, string text, TableForm form);
+    public delegate void CellFocusHandler(int rowIndex, int colIndex, TableForm form);
 
-    public delegate void MainFormVoidHandler(MainForm form);
+    public delegate void MainFormVoidHandler(TableForm form);
 
-    public partial class MainForm : Form
+    public partial class TableForm : Form
     {
-        public MainForm(
+        public TableForm(
             CellChnageHandler cellChnageHandler,
             CellFocusHandler cellFocusHandler,
             MainFormVoidHandler undoHandler,

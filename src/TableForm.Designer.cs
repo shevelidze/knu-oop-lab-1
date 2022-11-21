@@ -1,7 +1,7 @@
 ﻿
 namespace SharpTables
 {
-    partial class MainForm
+    partial class TableForm
     {
         /// <summary>
         ///  Required designer variable.
@@ -105,28 +105,28 @@ namespace SharpTables
             // undoMenuItem
             // 
             this.undoMenuItem.Name = "undoMenuItem";
-            this.undoMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.undoMenuItem.Size = new System.Drawing.Size(140, 22);
             this.undoMenuItem.Text = "Undo";
             this.undoMenuItem.Click += new System.EventHandler(this.undoMenuItem_Click);
             // 
             // redoMenuItem
             // 
             this.redoMenuItem.Name = "redoMenuItem";
-            this.redoMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.redoMenuItem.Size = new System.Drawing.Size(140, 22);
             this.redoMenuItem.Text = "Redo";
             this.redoMenuItem.Click += new System.EventHandler(this.redoMenuItem_Click);
             // 
             // addColumnToolStripMenuItem
             // 
             this.addColumnToolStripMenuItem.Name = "addColumnToolStripMenuItem";
-            this.addColumnToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.addColumnToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
             this.addColumnToolStripMenuItem.Text = "Add column";
             this.addColumnToolStripMenuItem.Click += new System.EventHandler(this.addColumnToolStripMenuItem_Click);
             // 
             // addRowToolStripMenuItem
             // 
             this.addRowToolStripMenuItem.Name = "addRowToolStripMenuItem";
-            this.addRowToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.addRowToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
             this.addRowToolStripMenuItem.Text = "Add row";
             this.addRowToolStripMenuItem.Click += new System.EventHandler(this.addRowToolStripMenuItem_Click);
             // 
@@ -145,7 +145,7 @@ namespace SharpTables
             this.mainGridView.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.mainGridView_CellBeginEdit);
             this.mainGridView.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.mainGridView_CellEndEdit);
             // 
-            // MainForm
+            // TableForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -153,8 +153,8 @@ namespace SharpTables
             this.Controls.Add(this.mainGridView);
             this.Controls.Add(this.mainMenuStrip);
             this.MainMenuStrip = this.mainMenuStrip;
-            this.Name = "MainForm";
-            this.Text = "Form1";
+            this.Name = "TableForm";
+            this.Text = "SharpTables";
             this.mainMenuStrip.ResumeLayout(false);
             this.mainMenuStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mainGridView)).EndInit();
