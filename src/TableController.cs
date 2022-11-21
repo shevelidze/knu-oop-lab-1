@@ -20,15 +20,7 @@ namespace SharpTables
                 {
                     try
                     {
-                        var values = table.SetCellExpression(rowIndex, columnIndex, text);
-
-                        form.Clear();
-
-                        foreach (var entry in values)
-                        {
-                            var cellIndexes = Table.ParseCellId(entry.Key);
-                            form.SetCellText(cellIndexes.Item1, cellIndexes.Item2, entry.Value.ToString());
-                        }
+                        _updateCells(_table.SetCellExpression(rowIndex, columnIndex, text));
                     }
                     catch (Exception e)
                     {
@@ -36,43 +28,42 @@ namespace SharpTables
                         {
                             _calculationErrorHandler((e is TokenizerException ? "Tokenizer exception: " :
                                 "Executor exception: ") + e.Message);
-                            form.SetCellText(rowIndex, columnIndex, table.GetCellExpression(rowIndex, columnIndex));
+                            form.SetCellText(rowIndex, columnIndex, _table.GetCellExpression(rowIndex, columnIndex));
                         }
                     }
                 },
             (rowIndex, columnIndex, form) =>
             {
-                form.SetCellText(rowIndex, columnIndex, table.GetCellExpression(rowIndex, columnIndex));
+                form.SetCellText(rowIndex, columnIndex, _table.GetCellExpression(rowIndex, columnIndex));
             },
             form =>
             {
-                table.Undo();
-
-                var values = table.Calculate();
-
-                form.Clear();
-
-                foreach (var entry in values)
-                {
-                    var cellIndexes = Table.ParseCellId(entry.Key);
-                    form.SetCellText(cellIndexes.Item1, cellIndexes.Item2, entry.Value.ToString());
-                }
-            },
+                _table.Undo();
+                _updateCells();
+               },
             form =>
             {
-                table.Redo();
-
-                var values = table.Calculate();
-
-                form.Clear();
-
-                foreach (var entry in values)
-                {
-                    var cellIndexes = Table.ParseCellId(entry.Key);
-                    form.SetCellText(cellIndexes.Item1, cellIndexes.Item2, entry.Value.ToString());
-                }
+                _table.Redo();
+                _updateCells();
             }
             );
+        }
+
+        private void _updateCells(Dictionary<string, ICellValue> values = null)
+        {
+            if (values == null)
+            {
+                values = _table.Calculate();
+            }
+            
+            this.Form.Clear();
+            
+            foreach (var entry in values)
+            {
+                var cellIndexes = Table.ParseCellId(entry.Key);
+                this.Form.SetCellText(cellIndexes.Item1, cellIndexes.Item2, entry.Value.ToString());
+            }
+
         }
 
         public TableForm Form { get; private set; }
