@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.IO;
 
 namespace SharpTables
 {
+
     public delegate void CalculationErrorHandler(string message);
 
     class TableController
@@ -16,6 +16,7 @@ namespace SharpTables
         {
             _table = table;
             _calculationErrorHandler = calculationErrorHandler;
+            _openedTableFilePath = null;
 
             this.Form = new TableForm(
                 (rowIndex, columnIndex, text, form) =>
@@ -48,18 +49,41 @@ namespace SharpTables
                     _table.Redo();
                     _updateCells();
                 },
-                form => { },
-                form => { },
-                form => { },
+                form => {
+                    _table.Clear();
+                    _updateCells();
+                },
+                form => {
+                    using (OpenFileDialog openFileDialog = new OpenFileDialog())
+                    {
+                        openFileDialog.Filter = TableController.FilesFilter;
+                        openFileDialog.RestoreDirectory = true;
+
+                        if (openFileDialog.ShowDialog() == DialogResult.OK)
+                        {
+                            _table.LoadFromFile(openFileDialog.FileName);
+                            _updateCells();
+                            _openedTableFilePath = openFileDialog.FileName;
+                        }
+                    }
+
+                },
+                form => {
+                    if (_openedTableFilePath != null)
+                    {
+                        _table.SaveToFile(_openedTableFilePath);
+                    }
+                },
                 form => {
                     SaveFileDialog saveFileDialog = new SaveFileDialog();
 
-                    saveFileDialog.Filter = "SharpTables table (*.stt)|*.stt|All files (*.*)|*.*";
+                    saveFileDialog.Filter = TableController.FilesFilter;
                     saveFileDialog.RestoreDirectory = true;
 
                     if (saveFileDialog.ShowDialog() == DialogResult.OK)
                     {
-                        _table.SaveToFile(Path.GetFullPath(saveFileDialog.FileName));
+                        _table.SaveToFile(saveFileDialog.FileName);
+                        _openedTableFilePath = saveFileDialog.FileName;
                     }
                 }
             );
@@ -86,5 +110,8 @@ namespace SharpTables
 
         private Table _table;
         private CalculationErrorHandler _calculationErrorHandler;
+        private string _openedTableFilePath;
+
+        public const string FilesFilter = "SharpTables table (*.stt)|*.stt|All files (*.*)|*.*";
     }
 }

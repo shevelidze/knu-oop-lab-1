@@ -94,7 +94,29 @@ namespace SharpTables
                     writer.WriteLine("{0}={1}", entry.Key, entry.Value);
                 }
             }
+        }
 
+        public void LoadFromFile(string path)
+        {
+            this.Clear();
+            using (StreamReader sr = new StreamReader(path))
+            {
+                string line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    int equalsSymbolIndex = line.IndexOf('=');
+                    string cellId = line.Substring(0, equalsSymbolIndex);
+                    string cellExpression = line.Substring(equalsSymbolIndex + 1);
+                    this._cellsExpressions[cellId] = cellExpression;
+                }
+            }
+        }
+
+        public void Clear()
+        {
+            _history = new List<Dictionary<string, string>>();
+            _history.Add(new Dictionary<string, string>());
+            _historyIndex = 0;
         }
 
         public static string ColumnIndexToString(int columnIndex)
