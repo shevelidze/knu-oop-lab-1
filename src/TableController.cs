@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.IO;
 
 namespace SharpTables
 {
@@ -32,20 +34,34 @@ namespace SharpTables
                         }
                     }
                 },
-            (rowIndex, columnIndex, form) =>
-            {
-                form.SetCellText(rowIndex, columnIndex, _table.GetCellExpression(rowIndex, columnIndex));
-            },
-            form =>
-            {
-                _table.Undo();
-                _updateCells();
-               },
-            form =>
-            {
-                _table.Redo();
-                _updateCells();
-            }
+                (rowIndex, columnIndex, form) =>
+                {
+                    form.SetCellText(rowIndex, columnIndex, _table.GetCellExpression(rowIndex, columnIndex));
+                },
+                form =>
+                {
+                    _table.Undo();
+                    _updateCells();
+                },
+                form =>
+                {
+                    _table.Redo();
+                    _updateCells();
+                },
+                form => { },
+                form => { },
+                form => { },
+                form => {
+                    SaveFileDialog saveFileDialog = new SaveFileDialog();
+
+                    saveFileDialog.Filter = "SharpTables table (*.stt)|*.stt|All files (*.*)|*.*";
+                    saveFileDialog.RestoreDirectory = true;
+
+                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        _table.SaveToFile(Path.GetFullPath(saveFileDialog.FileName));
+                    }
+                }
             );
         }
 

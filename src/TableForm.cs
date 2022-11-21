@@ -21,7 +21,11 @@ namespace SharpTables
             CellChnageHandler cellChnageHandler,
             CellFocusHandler cellFocusHandler,
             MainFormVoidHandler undoHandler,
-            MainFormVoidHandler redoHandler
+            MainFormVoidHandler redoHandler,
+            MainFormVoidHandler newTableClickHandler,
+            MainFormVoidHandler openTableClickHandler,
+            MainFormVoidHandler saveClickHandler,
+            MainFormVoidHandler saveAsClickHandler
             )
         {
             InitializeComponent();
@@ -30,6 +34,10 @@ namespace SharpTables
             _cellFocusHandler = cellFocusHandler;
             _undoHandler = undoHandler;
             _redoHandler = redoHandler;
+            _newTableClickHandler = newTableClickHandler;
+            _openTableClickHandler = openTableClickHandler;
+            _saveClickHandler = saveClickHandler;
+            _saveAsClickHandler = saveAsClickHandler;
 
             const int initialRowsNumber = 10;
             const int initialColumnsNumber = 5;
@@ -84,6 +92,10 @@ namespace SharpTables
         private CellFocusHandler _cellFocusHandler;
         private MainFormVoidHandler _undoHandler;
         private MainFormVoidHandler _redoHandler;
+        private MainFormVoidHandler _newTableClickHandler;
+        private MainFormVoidHandler _openTableClickHandler;
+        private MainFormVoidHandler _saveClickHandler;
+        private MainFormVoidHandler _saveAsClickHandler;
 
         private void addColumnToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -120,6 +132,26 @@ namespace SharpTables
         private void redoMenuItem_Click(object sender, EventArgs e)
         {
             _redoHandler(this);
+        }
+
+        private void newWorkbookMenuItem_Click(object sender, EventArgs e)
+        {
+            _newTableClickHandler(this);
+        }
+
+        private void openWorkbookMenuItem_Click(object sender, EventArgs e)
+        {
+            _openTableClickHandler(this);
+        }
+
+        private void saveMenuItem_Click(object sender, EventArgs e)
+        {
+            _saveClickHandler(this);
+        }
+
+        private void saveAsMenuItem_Click(object sender, EventArgs e)
+        {
+            _saveAsClickHandler(this);
         }
     }
 }

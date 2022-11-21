@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace SharpTables
 {
@@ -82,6 +83,18 @@ namespace SharpTables
             {
                 _historyIndex++;
             }
+        }
+
+        public void SaveToFile(string path)
+        {
+            using (StreamWriter writer = new StreamWriter(path))
+            {
+                foreach (var entry in _cellsExpressions)
+                {
+                    writer.WriteLine("{0}={1}", entry.Key, entry.Value);
+                }
+            }
+
         }
 
         public static string ColumnIndexToString(int columnIndex)

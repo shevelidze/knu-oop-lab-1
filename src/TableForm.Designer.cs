@@ -70,26 +70,30 @@ namespace SharpTables
             // newWorkbookMenuItem
             // 
             this.newWorkbookMenuItem.Name = "newWorkbookMenuItem";
-            this.newWorkbookMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.newWorkbookMenuItem.Size = new System.Drawing.Size(180, 22);
             this.newWorkbookMenuItem.Text = "New workbook";
+            this.newWorkbookMenuItem.Click += new System.EventHandler(this.newWorkbookMenuItem_Click);
             // 
             // openWorkbookMenuItem
             // 
             this.openWorkbookMenuItem.Name = "openWorkbookMenuItem";
-            this.openWorkbookMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.openWorkbookMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openWorkbookMenuItem.Text = "Open workbook";
+            this.openWorkbookMenuItem.Click += new System.EventHandler(this.openWorkbookMenuItem_Click);
             // 
             // saveMenuItem
             // 
             this.saveMenuItem.Name = "saveMenuItem";
-            this.saveMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.saveMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveMenuItem.Text = "Save";
+            this.saveMenuItem.Click += new System.EventHandler(this.saveMenuItem_Click);
             // 
             // saveAsMenuItem
             // 
             this.saveAsMenuItem.Name = "saveAsMenuItem";
-            this.saveAsMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.saveAsMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveAsMenuItem.Text = "Save as";
+            this.saveAsMenuItem.Click += new System.EventHandler(this.saveAsMenuItem_Click);
             // 
             // editMenuItem
             // 
