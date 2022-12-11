@@ -9,7 +9,7 @@ namespace SharpTables
     public delegate ICellValue BinaryOperatorExecutor(ICellValue left, ICellValue right);
     public delegate ICellValue UnaryOperatorExecutor(ICellValue operand);
 
-    class Operator
+    public class Operator
     {
         public Operator(string text, BinaryOperatorExecutor binaryExecutor, UnaryOperatorExecutor unaryExecutor)
         {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SharpTables
 {
-    class ExpressionExecutor
+    public class ExpressionExecutor
     {
         public ExpressionExecutor(
             string expression,

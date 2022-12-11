@@ -7,7 +7,7 @@ using System.IO;
 
 namespace SharpTables
 {
-    class Table
+    public class Table
     {
         public Table()
         {

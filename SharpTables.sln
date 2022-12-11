@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.32802.440
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpTables", "SharpTables.csproj", "{31DA3057-56D1-4563-A4D8-89B45BACED8B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpTablesTests", "SharpTablesTests\SharpTablesTests.csproj", "{3C5EE7D1-39FF-4C73-A6E0-061F79A3B5D1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpTables", "SharpTables\SharpTables.csproj", "{C70A5C15-90B6-4EFE-A76A-0BE4C3CF9371}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{31DA3057-56D1-4563-A4D8-89B45BACED8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{31DA3057-56D1-4563-A4D8-89B45BACED8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{31DA3057-56D1-4563-A4D8-89B45BACED8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{31DA3057-56D1-4563-A4D8-89B45BACED8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C5EE7D1-39FF-4C73-A6E0-061F79A3B5D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C5EE7D1-39FF-4C73-A6E0-061F79A3B5D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C5EE7D1-39FF-4C73-A6E0-061F79A3B5D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C5EE7D1-39FF-4C73-A6E0-061F79A3B5D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C70A5C15-90B6-4EFE-A76A-0BE4C3CF9371}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C70A5C15-90B6-4EFE-A76A-0BE4C3CF9371}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C70A5C15-90B6-4EFE-A76A-0BE4C3CF9371}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C70A5C15-90B6-4EFE-A76A-0BE4C3CF9371}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

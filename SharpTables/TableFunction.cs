@@ -8,7 +8,7 @@ namespace SharpTables
 {
     public delegate ICellValue TableFunctionExecutor(List<ICellValue> arguments);
 
-    class TableFunction
+    public class TableFunction
     {
         public TableFunction(string name, TableFunctionExecutor executor, int argumentsNumber = -1)
         {
